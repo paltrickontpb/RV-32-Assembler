@@ -2,11 +2,16 @@
 #define _RV32_UTILS_H_
 
 #include <iostream>
+#include <iterator>
+#include <stdlib.h>
+#include <string>
+#include <fstream>
+#include <vector>
 
 class ErrorHandler{
     public:
         ErrorHandler();
-        int assignError(int ecode);
+        int setError(int ecode);
         void printError();  
     private:
         int errorCode;

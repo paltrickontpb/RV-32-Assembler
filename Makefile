@@ -7,10 +7,11 @@ HEADERS = ${PWD}/HEADERS
 CFLAGS = -Wall -I${HEADERS}
 
 build:
+	mkdir -p ${BUILD}
 	$(cc) ${CFLAGS} ${SRC}/*.cpp -o ${BUILD}/rv32-asm
 
 clean:
 	rm -rf ${BUILD}/*
 
 run:
-	${BUILD}/rv32-asm
+	${BUILD}/rv32-asm abc.asm
