@@ -31,5 +31,7 @@ void ErrorHandler::printError(){
     */
 
     if(errorCode == 0) return;
-    else cout << "Error " << errorCode << endl;
+    
+    cout << "Error Code: " << errorCode << endl;
+    cout << "Reason: " << errorMap.find(errorCode)->second <<endl;
 }

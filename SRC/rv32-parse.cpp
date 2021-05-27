@@ -8,9 +8,10 @@ rv32Parser::rv32Parser(){
 
 std::string rv32Parser::parseLine(std::string){
     // Logic
+    std::string outBuf = "";
     
     // Variable Update
     instAddress+=4;
     lineNumber++;
-    return ""; //Return the binary output of parsed line
+    return outBuf; //Return the binary output of parsed line
 }
