@@ -16,6 +16,8 @@ class ErrorHandler{
         void printError();  
     private:
         int errorCode;
+
+        // Associative Map Structure for Errorcode responses
         std::map<int, std::string> errorMap {
             {0, "No Errors"},
             {1, "Logical Error"},

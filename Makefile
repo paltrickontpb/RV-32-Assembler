@@ -1,6 +1,6 @@
 # Makefile
 cc = g++
-PWD = /home/protox/projects/rv32-asm
+PWD = .
 SRC = ${PWD}/SRC
 BUILD = ${PWD}/BUILD
 HEADERS = ${PWD}/HEADERS
@@ -12,7 +12,7 @@ build:
 
 .PHONY: clean
 clean:
-	rm -rf ${BUILD}/*
+	rm -rf ${BUILD}
 
 .PHONY: run
 run:
