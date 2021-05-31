@@ -52,7 +52,7 @@ class rv32Parser{
             {"bgeu", 'B'},
             // J Instructions
             {"jal", 'J'},
-            {"jalr", 'I'},
+            {"jalr", 'I'}, //Follows I type, rather than J type
             // U instructions
             {"lui", 'U'},
             {"auipc", 'U'}
@@ -101,6 +101,60 @@ class rv32Parser{
             // U instructions
             {"lui", "0110111"},
             {"auipc", "0010111"}
+        };
+
+        std::map<std::string, std::string> funct3Map{
+            {"add", "000"},
+            {"sub", "000"},
+            {"xor", "100"},
+            {"or", "110"},
+            {"and", "111"},
+            {"sll", "001"},
+            {"srl", "101"},
+            {"sra", "101"},
+            {"slt", "010"},
+            {"sltu", "011"},
+            // I instructions
+            {"addi", "000"},
+            {"xori", "100"},
+            {"ori", "110"},
+            {"andi", "111"},
+            {"slli", "001"},
+            {"srli", "101"},
+            {"srai", "101"},
+            {"slti", "010"},
+            {"sltiu", "011"},
+            {"lb", "000"},
+            {"lh", "001"},
+            {"lw", "010"},
+            {"lbu", "100"},
+            {"lhu", "101"},
+            // S Instructions
+            {"sb", "000"},
+            {"sh", "001"},
+            {"sw", "010"},
+            // B instructions
+            {"beq", "000"},
+            {"bne", "001"},
+            {"blt", "100"},
+            {"bge", "101"},
+            {"bltu", "110"},
+            {"bgeu", "111"},
+            // J Instructions
+            {"jalr", "000"}
+        };
+
+        std::map<std::string, std::string> funct7Map{
+            {"add", "0000000"},
+            {"sub", "0100000"},
+            {"xor", "0000000"},
+            {"or", "0000000"},
+            {"and", "0000000"},
+            {"sll", "0000000"},
+            {"srl", "0000000"},
+            {"sra", "0100000"},
+            {"slt", "0000000"},
+            {"sltu", "0000000"}
         };
 };
 
