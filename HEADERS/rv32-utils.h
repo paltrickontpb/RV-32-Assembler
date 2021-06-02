@@ -8,6 +8,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <regex>
 
 class ErrorHandler{
     public:
