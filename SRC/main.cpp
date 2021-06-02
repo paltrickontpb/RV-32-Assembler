@@ -53,6 +53,11 @@ int main(int argc, char **argv){
     // Parse Each Line Using Parser class (Not yet created)
     //for (auto i: fileBuffer) cout << i <<endl;
     rv32Parser Parser;
-    cout << Parser.parseLine("abc");
+    cout << Parser.parseLine(".loop: auipcs x0, x2, x3 //Instruction");
+    cout << Parser.parseLine("jpaddr: mov x0, x2, x3");
+    cout << Parser.parseLine("add x0, x2, x3 //Instruction 2");
+    cout << Parser.parseLine(".make:");
+    cout << Parser.parseLine(".later:");
+    cout << Parser.parseLine("add x1, x2, x3 //vibecheck");
     return 0;
 }

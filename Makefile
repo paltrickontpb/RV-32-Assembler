@@ -6,6 +6,8 @@ BUILD = ${PWD}/BUILD
 HEADERS = ${PWD}/HEADERS
 CFLAGS = -Wall -I${HEADERS}
 
+buildandrun: build run
+
 build:
 	mkdir -p ${BUILD}
 	$(cc) ${CFLAGS} ${SRC}/*.cpp -o ${BUILD}/rv32-asm
