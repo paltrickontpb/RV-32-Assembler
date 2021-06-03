@@ -16,11 +16,10 @@ std::string rv32Parser::parseLine(std::string asmLine){
     
     regex_search(asmLine, groups, initEx);
 
-    //cout << "Size of group : " << groups.size() << endl; // Always 4
     std::string label = groups.str(1);
     std::string asmCommand = groups.str(2);
     std::string Comment = groups.str(3); // Not exactly necessary
-    //if(label.size()>0) cout<<"Label :" << label << " and size " << label.size() << endl;
+
     if(label.size()>0) {
         label = label.substr(0, label.size()-1);
         cout << "Label Found : " << label << endl;
@@ -35,7 +34,6 @@ std::string rv32Parser::parseLine(std::string asmLine){
     if(Comment.size()>1) {
         cout << "Comment found : " << Comment << endl;
     }
-    
 
     // Variable Update
     if(incrementAddress){

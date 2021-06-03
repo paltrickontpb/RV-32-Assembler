@@ -5,6 +5,7 @@ The RV32-ASM or RISC-V 32-bit Assembler is a project aimed towards learning and 
 ### Directions to run the project
 
 1. Install g++ and gnu-make.
-2. Type "make"
-3. To run while in dev phase type "make run"
-4. To remove compiled binary, type "make clean"
+2. Type "make" to build build the executable and run it
+3. Type "make build" to only build executable
+4. To run while in dev phase type "make run"
+5. To remove build directory along with compiled binary, type "make clean"
