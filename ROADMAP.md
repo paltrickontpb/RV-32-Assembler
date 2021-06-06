@@ -11,10 +11,10 @@
 9. ~~Read each line and segment it into Label, Command and Comment using Regular Expression~~
 10. ~~Pass Each label with address into an associative map~~
 11. ~~Increment address with each command~~
-12. Segment command into function and args using Regular expressions
-13. Map all ASM functions to get binary format, and convert args into binary using registerAliasMap
-14. Create 32bit long binary lines and return those from parser function
-15. Pass Address to each label instance in second pass
+12. ~~Segment command into function and args~~
+13. Pass Address to each label instance in second pass
+14. Map all ASM functions to get binary format, and convert args into binary using registerAliasMap
+15. Create 32bit long binary lines and return those from parser function
 16. Map Assembler directives into the process
 17. Create testbenches during make file operation
 

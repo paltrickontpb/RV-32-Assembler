@@ -53,11 +53,21 @@ int main(int argc, char **argv){
     // Parse Each Line Using Parser class (Not yet created)
     //for (auto i: fileBuffer) cout << i <<endl;
     rv32Parser Parser;
-    cout << Parser.parseLine(".loop: auipcs x0, x2, x3 //Instruction");
-    cout << Parser.parseLine("jpaddr: mov x0, x2, x3");
-    cout << Parser.parseLine("add x0, x2, x3 //Instruction 2");
-    cout << Parser.parseLine(".make:");
-    cout << Parser.parseLine(".later:");
-    cout << Parser.parseLine("add x1, x2, x3 //vibecheck");
+    //Manual First Pass
+    cout << Parser.parseLine("loop:     auipcs x0, x2, x3 #Instruction",1);
+    cout << Parser.parseLine("jpaddr:   .mov x0, x2, x3",1);
+    cout << Parser.parseLine("          add x0, x2, x3 #Instruction 2",1);
+    cout << Parser.parseLine("make:",1);
+    cout << Parser.parseLine("# TEST COMMENT",1);
+    cout << Parser.parseLine("later:",1);
+    cout << Parser.parseLine("          add x1, x2, x3 #vibecheck",1);
+    //Manual Second Pass
+    cout << Parser.parseLine("loop:     auipcs x0, x2, x3 #Instruction",2);
+    cout << Parser.parseLine("jpaddr:   .mov x0, x2, x3",2);
+    cout << Parser.parseLine("          add x0, x2, x3 #Instruction 2",2);
+    cout << Parser.parseLine("make:",2);
+    cout << Parser.parseLine("# TEST COMMENT",2);
+    cout << Parser.parseLine("later:",2);
+    cout << Parser.parseLine("          add x1, x2, x3 #vibecheck",2);
     return 0;
 }

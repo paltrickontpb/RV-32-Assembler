@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <regex>
+#include <algorithm>
 
 class ErrorHandler{
     public:
