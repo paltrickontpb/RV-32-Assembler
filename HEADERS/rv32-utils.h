@@ -10,6 +10,7 @@
 #include <map>
 #include <regex>
 #include <algorithm>
+#include <bitset>
 
 class ErrorHandler{
     public:

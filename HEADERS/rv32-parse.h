@@ -6,7 +6,7 @@
 class rv32Parser{
     public:
         rv32Parser();
-        std::string parseLine(std::string asmLine, int passNum); //return hex or binary string(tbd)
+        unsigned int parseLine(std::string asmLine, int passNum); //return hex or binary string(tbd)
     private:
         int lineNumber;
         int instAddress;
@@ -84,7 +84,7 @@ class rv32Parser{
         };
 
         //Map containing R,I,S,B,U,J Instruction Types
-        std::map<std::string, char> instType{
+        std::map<std::string, char> instTypeMap{
             // R Instructions
             {"add", 'R'},
             {"sub", 'R'},
