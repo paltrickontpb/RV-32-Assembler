@@ -15,6 +15,7 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
     // Flags
     bool incrementAddress = false;
     bool assemblerDirective = false;
+    bool isCommand = false;
     // Logic
     unsigned int outBuf = 0;
     std::regex initEx("([^/\r\n]*:)?([^/#\t\r\n]*)?(#[^/\r\n]*)?"); //(Group 1: Address Label)
@@ -37,6 +38,7 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
     
         // Check for Commands
         if(asmCommand.size()>1) {
+            isCommand = true;
             replace(asmCommand.begin(), asmCommand.end(), ',', ' '); asmCommand += " ";
             std::vector<std::string> funcArgs;
             std::string tempString = "";
@@ -95,6 +97,7 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
             
             // Command segregation
             if (funcArgs[0][0] != '.' && funcArgs[0][1] != '.' && funcArgs[0] != "ecall" && funcArgs[0] != "ebreak"){
+                if (instTypeMap.count(funcArgs[0]) == 0) return ERR_VAR;
                 char instType = instTypeMap.find(funcArgs[0])->second;
                 std::string opCode = opcodeMap.find(funcArgs[0])->second;
                 std::string funct3 ,funct7;            
@@ -107,6 +110,10 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
                               outBuf |= (stoi(funct3, 0, 2) << 12);
                               outBuf |= (stoi(funct7, 0, 2) << 25);
                               // define rd, rs1, rs2
+                              if(funcArgs.size() < 4) return ARG_ERROR;
+                              outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); // assigning rd
+                              outBuf |= ((registerAliasMap.find(funcArgs[2])->second) << 15); // assigning rs1
+                              outBuf |= ((registerAliasMap.find(funcArgs[3])->second) << 20); // assigning rs2
                               break;
                     case 'I': funct3 = funct3Map.find(funcArgs[0])->second;
                               outBuf |= (stoi(funct3, 0, 2) << 12);
@@ -136,16 +143,14 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
             
             // Assembler directive handler (We will handle Assembler Directives much later)
             //if(funcArgs[0][0] == '.') assemblerDirective = true;
-            if(!assemblerDirective) incrementAddress = true;
-
-            
+            if (funcArgs[0][0] == '.') assemblerDirective = true;
+            if(!assemblerDirective) {incrementAddress = true; isCommand = true;}
+            std::string binary = std::bitset<32>(outBuf).to_string(); //to binary
+            std::cout<< funcArgs[0] << " : " << binary<<"\n";   
         }
-
-        std::string binary = std::bitset<32>(outBuf).to_string(); //to binary
-        std::cout<<binary<<"\n";
-
     }
 
-    return outBuf; //Return the binary output of parsed line
+    if (isCommand) return outBuf; //Return the binary output of parsed line
+    else return NULL_VAR;
 }
 

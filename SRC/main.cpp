@@ -63,13 +63,15 @@ int main(int argc, char **argv){
     Parser.parseLine("          sll x1, x2, x3 #vibecheck",1);
     //Manual Second Pass
     Parser.parseLine("loop:     auipc x0, x2, x3 #Instruction",2);
-    Parser.parseLine("jpaddr:   .mov x0, x2, x3",2);
+    //cout << std::bitset<32>(Parser.parseLine("jpaddr:   .mov x0, x2, x3",2)).to_string();
     Parser.parseLine("          sub x0, x2, x3 #Instruction 2",2);
-    Parser.parseLine("make:",2);
+    //cout << std::bitset<32>(Parser.parseLine("make",2)).to_string();
     Parser.parseLine("# TEST COMMENT",2);
     Parser.parseLine("later:",2);
     Parser.parseLine("          sll x1, x2, x3 #vibecheck",2);
     Parser.parseLine("          ecall",2);
     Parser.parseLine("          ebreak",2);
+
+    // Write 32bit to file, Ignore Nulls and Pass Error to Error Handler
     return 0;
 }

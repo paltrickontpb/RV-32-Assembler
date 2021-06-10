@@ -12,6 +12,10 @@
 #include <algorithm>
 #include <bitset>
 
+#define NULL_VAR -1
+#define ERR_VAR -2
+#define ARG_ERROR -3
+
 class ErrorHandler{
     public:
         ErrorHandler();
