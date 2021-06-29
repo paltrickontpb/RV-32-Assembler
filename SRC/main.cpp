@@ -61,6 +61,10 @@ int main(int argc, char **argv){
     Parser.parseLine("# TEST COMMENT",1);
     Parser.parseLine("later:",1);
     Parser.parseLine("          sll x1, x2, x3 #vibecheck",1);
+    Parser.parseLine("          sb x3, 1725(x4)",1);
+    Parser.parseLine("          ebreak",1);
+    Parser.parseLine("APRAD:    beq x1, x2, APRAD",1);
+
     //Manual Second Pass
     Parser.reset_LineAddress();
 
@@ -73,6 +77,8 @@ int main(int argc, char **argv){
     Parser.parseLine("          sll x1, x2, x3 #vibecheck",2);
     Parser.parseLine("          sb x3, 1725(x4)",2);
     Parser.parseLine("          ebreak",2);
+    Parser.parseLine("          ebreak",2);
+    Parser.parseLine("          beq x1, x2, APRAD",2);
 
     // Write 32bit to file, Ignore Nulls and Pass Error to Error Handler
     return 0;

@@ -110,7 +110,7 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
                 char instType = instTypeMap.find(funcArgs[0])->second;
                 std::string opCode = opcodeMap.find(funcArgs[0])->second;
                 std::string funct3 ,funct7;            
-                int pcrel_13;
+                int pcrel_13, pcrel_21;
 
                 outBuf |= stoi(opCode, 0, 2);
 
@@ -183,6 +183,17 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
                               break;
                     case 'J': outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); // assigning rd
                               //Define pcrel21
+                              pcrel_21 = labelMap.find(funcArgs[3])->second;
+                              pcrel_21 -= instAddress;
+                              if(true){
+                                  std::bitset<21> preImm(pcrel_21);
+                                  std::bitset<20> newImm(0);
+                                  for(int r=12; r<20; r++) newImm.set(r-12, preImm[r]);
+                                  newImm.set(8, preImm[11]);
+                                  for(int r=1; r<11; r++) newImm.set(r-1+9, preImm[r]);
+                                  newImm.set(19, preImm[20]);
+                                  outBuf |= (newImm.to_ulong() << 12);
+                              }
                               break;
                     default : cout << "Unexpected Error. Check instruction type map for wrong entries (other than r, i, s, b, u & j).";
                 }
