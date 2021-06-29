@@ -13,8 +13,8 @@
 11. ~~Increment address with each command~~
 12. ~~Segment command into function and args~~
 13. Pass Address to each label instance in second pass
-14. Map all ASM functions to get binary format, and convert args into binary using registerAliasMap
-15. Create 32bit long binary lines and return those from parser function
+14. ~~Map all ASM functions to get binary format, and convert args into binary using registerAliasMap~~
+15. ~~Create 32bit long binary lines and return those from parser function~~
 16. Map Assembler directives into the process
 17. Create testbenches during make file operation
 

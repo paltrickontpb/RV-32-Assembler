@@ -11,6 +11,15 @@ rv32Parser::rv32Parser(){
     instAddress = 0;
 }
 
+void rv32Parser::reset_LineAddress(){
+    lineNumber = 0;
+    instAddress = 0;
+}
+
+void rv32Parser::setAddress(int addr){
+    instAddress = addr;
+}
+
 unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
     // Flags
     bool incrementAddress = false;
@@ -32,7 +41,7 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
         // Check for Labels
         if(label.size()>0) {
             label = label.substr(0, label.size()-1);
-            //cout << "Label Found : " << label << endl;
+            cout << "Label Found : " << label << " at location " << instAddress << endl;
             labelMap.insert({label, instAddress});
         }
     
@@ -67,7 +76,7 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
         // Variable Update
         if(incrementAddress){
            // cout << "Address : " << instAddress << endl;
-            instAddress+=32; // Only if instruction exists (Line is not empty or has only a comment)
+            instAddress+=4; // Only if instruction exists (Line is not empty or has only a comment)
         } 
         lineNumber++;
     }
@@ -101,6 +110,7 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
                 char instType = instTypeMap.find(funcArgs[0])->second;
                 std::string opCode = opcodeMap.find(funcArgs[0])->second;
                 std::string funct3 ,funct7;            
+                int pcrel_13;
 
                 outBuf |= stoi(opCode, 0, 2);
 
@@ -109,7 +119,6 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
                               funct7 = funct7Map.find(funcArgs[0])->second;
                               outBuf |= (stoi(funct3, 0, 2) << 12);
                               outBuf |= (stoi(funct7, 0, 2) << 25);
-                              // define rd, rs1, rs2
                               if(funcArgs.size() < 4) return ARG_ERROR;
                               outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); // assigning rd
                               outBuf |= ((registerAliasMap.find(funcArgs[2])->second) << 15); // assigning rs1
@@ -117,24 +126,65 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
                               break;
                     case 'I': funct3 = funct3Map.find(funcArgs[0])->second;
                               outBuf |= (stoi(funct3, 0, 2) << 12);
-                              if(funcArgs[0]=="srli" || funcArgs[0]=="slli" || funcArgs[0]=="srai") {funct7 = funct7Map.find(funcArgs[0])->second; outBuf |= (stoi(funct7, 0, 2) << 25);}
+                              //if(funcArgs[0]=="srli" || funcArgs[0]=="slli" || funcArgs[0]=="srai") {funct7 = funct7Map.find(funcArgs[0])->second; outBuf |= (stoi(funct7, 0, 2) << 25);}
                               //Define all types of I instructions
+                              
                               break;
                     case 'S': funct3 = funct3Map.find(funcArgs[0])->second;
                               outBuf |= (stoi(funct3, 0, 2) << 12);
-                              // Define rs2, rs1, imm
+                              outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 20); //rs2
+                              // imm(rs1) segregation
+                              //cout << funcArgs.size() << endl;
+                              if(funcArgs.size()==3){
+                                  replace(funcArgs[2].begin(), funcArgs[2].end(), '(', ' ');
+                                  replace(funcArgs[2].begin(), funcArgs[2].end(), ')', ' ');
+                                  std::vector<std::string> immrs1;
+                                  std::string tempstring = "";
+                                  for (char z: funcArgs[2]){
+                                      if(!isSpace(z)) tempstring += z;
+                                      else {
+                                        immrs1.push_back(tempstring);
+                                        tempstring = "";
+                                    }
+                                  }
+                                  std::bitset<5> immediateVal1(stoi(immrs1[0], 0, 10));
+                                  std::bitset<7> immediateVal2(stoi(immrs1[0], 0, 10) >> 5);
+                                  outBuf |= (immediateVal1.to_ulong() << 7);
+                                  outBuf |= (immediateVal2.to_ulong() << 25);
+                                  outBuf |= ((registerAliasMap.find(immrs1[1])->second) << 15); 
+                              }
+                              // Else throw error pointing why spaces are bad code styling
                               break;
-                    case 'U': //define imm and rd
+                    case 'U': outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); //rd
+                              if ((funcArgs[2][0] == '0' && funcArgs[2][1] == 'x') || funcArgs[2][funcArgs[2].size()-1] == 'h') {
+                                  outBuf |= stoi(funcArgs[2], 0, 16) << 12; //hex
+                              } else {
+                                  outBuf |= stoi(funcArgs[2], 0, 10) << 12; //decimal
+                              }
                               break;
                     case 'B': funct3 = funct3Map.find(funcArgs[0])->second;
                               outBuf |= (stoi(funct3, 0, 2) << 12);
-                              //define rs1, rs2, pcrel_to_imm
+                              outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 15); // assigning rs1
+                              outBuf |= ((registerAliasMap.find(funcArgs[2])->second) << 20); // assigning rs2
+                              //define pcrel13
+                              pcrel_13 = labelMap.find(funcArgs[3])->second;
+                              pcrel_13 -=  instAddress;
+                              if(true) {
+                                  std::bitset<13> immVal(pcrel_13);
+                                  std::bitset<5> imm5rd(0);
+                                  imm5rd.set(0, immVal[11]);
+                                  for(int r=1; r<5; r++) imm5rd.set(r, immVal[r]);
+                                  std::bitset<7> imm7imm(0);
+                                  for(int r=5; r<11; r++) imm7imm.set(r-5, immVal[r]);
+                                  imm7imm.set(6, immVal[12]);
+                                  outBuf |= (imm5rd.to_ulong() << 7);
+                                  outBuf |= (imm7imm.to_ulong() << 25);
+                              }
                               break;
-                    case 'J': funct3 = funct3Map.find(funcArgs[0])->second;
-                              outBuf |= (stoi(funct3, 0, 2) << 12);
-                              //define imm and rd
+                    case 'J': outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); // assigning rd
+                              //Define pcrel21
                               break;
-                    default : cout << "RIP FAM";
+                    default : cout << "Unexpected Error. Check instruction type map for wrong entries (other than r, i, s, b, u & j).";
                 }
             }
             
@@ -145,8 +195,15 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
             //if(funcArgs[0][0] == '.') assemblerDirective = true;
             if (funcArgs[0][0] == '.') assemblerDirective = true;
             if(!assemblerDirective) {incrementAddress = true; isCommand = true;}
+            
             std::string binary = std::bitset<32>(outBuf).to_string(); //to binary
-            std::cout<< funcArgs[0] << " : " << binary<<"\n";   
+            std::cout<< funcArgs[0] << " : " << binary<<"\n";  
+
+            if(incrementAddress){
+           // cout << "Address : " << instAddress << endl;
+            instAddress+=4; // Only if instruction exists (Line is not empty or has only a comment)
+            } 
+            lineNumber++;
         }
     }
 

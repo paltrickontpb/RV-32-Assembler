@@ -54,7 +54,7 @@ int main(int argc, char **argv){
     //for (auto i: fileBuffer) cout << i <<endl;
     rv32Parser Parser;
     //Manual First Pass
-    Parser.parseLine("loop:     auipc x0, x2, x3 #Instruction",1);
+    Parser.parseLine("loop:     auipc x0, 0x1244 #Instruction",1);
     Parser.parseLine("jpaddr:   .mov x0, x2, x3",1);
     Parser.parseLine("          sub x0, x2, x3 #Instruction 2",1);
     Parser.parseLine("make:",1);
@@ -62,14 +62,16 @@ int main(int argc, char **argv){
     Parser.parseLine("later:",1);
     Parser.parseLine("          sll x1, x2, x3 #vibecheck",1);
     //Manual Second Pass
-    Parser.parseLine("loop:     auipc x0, x2, x3 #Instruction",2);
+    Parser.reset_LineAddress();
+
+    Parser.parseLine("loop:     auipc x0, 1245h #Instruction",2);
     //cout << std::bitset<32>(Parser.parseLine("jpaddr:   .mov x0, x2, x3",2)).to_string();
     Parser.parseLine("          sub x0, x2, x3 #Instruction 2",2);
     //cout << std::bitset<32>(Parser.parseLine("make",2)).to_string();
     Parser.parseLine("# TEST COMMENT",2);
     Parser.parseLine("later:",2);
     Parser.parseLine("          sll x1, x2, x3 #vibecheck",2);
-    Parser.parseLine("          ecall",2);
+    Parser.parseLine("          sb x3, 1725(x4)",2);
     Parser.parseLine("          ebreak",2);
 
     // Write 32bit to file, Ignore Nulls and Pass Error to Error Handler
