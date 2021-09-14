@@ -99,7 +99,7 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
             for (char y: asmCommand){
                 if(!isSpace(y)) tempString += y;
                 else {
-                    if(tempString.size()>1) funcArgs.push_back(tempString);
+                    if(tempString.size()>=1) funcArgs.push_back(tempString);
                     tempString = "";
                 }
             }
@@ -115,7 +115,8 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
                 outBuf |= stoi(opCode, 0, 2);
 
                 switch (instType){
-                    case 'R': funct3 = funct3Map.find(funcArgs[0])->second;
+                    case 'R': {
+                              funct3 = funct3Map.find(funcArgs[0])->second;
                               funct7 = funct7Map.find(funcArgs[0])->second;
                               outBuf |= (stoi(funct3, 0, 2) << 12);
                               outBuf |= (stoi(funct7, 0, 2) << 25);
@@ -124,13 +125,38 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
                               outBuf |= ((registerAliasMap.find(funcArgs[2])->second) << 15); // assigning rs1
                               outBuf |= ((registerAliasMap.find(funcArgs[3])->second) << 20); // assigning rs2
                               break;
-                    case 'I': funct3 = funct3Map.find(funcArgs[0])->second;
+                    }
+                    case 'I': {
+                              funct3 = funct3Map.find(funcArgs[0])->second;
                               outBuf |= (stoi(funct3, 0, 2) << 12);
-                              //if(funcArgs[0]=="srli" || funcArgs[0]=="slli" || funcArgs[0]=="srai") {funct7 = funct7Map.find(funcArgs[0])->second; outBuf |= (stoi(funct7, 0, 2) << 25);}
-                              //Define all types of I instructions
-                              
+                              outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); // assigning rd
+                              //std::cout << funcArgs[0] << ":" << funcArgs[1] << ":" << funcArgs[2] << ":" << funcArgs[3] << endl;
+                              if (funcArgs[0]=="lb" || funcArgs[0]=="lh" || funcArgs[0]=="lw" || funcArgs[0]=="lbu" || funcArgs[0]=="lhu") {
+                                replace(funcArgs[2].begin(), funcArgs[2].end(), '(', ' ');
+                                replace(funcArgs[2].begin(), funcArgs[2].end(), ')', ' ');
+                                std::vector<std::string> immrs1;
+                                std::string tempstring = "";
+                                for (char z: funcArgs[2]){
+                                    if(!isSpace(z)) tempstring += z;
+                                    else {
+                                      immrs1.push_back(tempstring);
+                                      tempstring = "";
+                                  }
+                                }
+                                //cout << immrs1.size() << ":" << immrs1[0] << ":" << immrs1[1];
+                                outBuf |= ((registerAliasMap.find(immrs1[1])->second) << 15); // assigning rs1
+                                std::bitset<12> immediateVal1(stoi(immrs1[0], 0, 10));
+                                outBuf |= (immediateVal1.to_ulong() << 20);
+                              } else {
+                                outBuf |= ((registerAliasMap.find(funcArgs[2])->second) << 15); // assigning rs1
+                                std::bitset<12> immediateVal1(stoi(funcArgs[3], 0, 10));
+                                outBuf |= (immediateVal1.to_ulong() << 20);
+                              }
+                              if(funcArgs[0]=="srli" || funcArgs[0]=="slli" || funcArgs[0]=="srai") {funct7 = funct7Map.find(funcArgs[0])->second; outBuf |= (stoi(funct7, 0, 2) << 25);}
                               break;
-                    case 'S': funct3 = funct3Map.find(funcArgs[0])->second;
+                    }
+                    case 'S': {
+                              funct3 = funct3Map.find(funcArgs[0])->second;
                               outBuf |= (stoi(funct3, 0, 2) << 12);
                               outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 20); //rs2
                               // imm(rs1) segregation
@@ -153,48 +179,52 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
                                   outBuf |= (immediateVal2.to_ulong() << 25);
                                   outBuf |= ((registerAliasMap.find(immrs1[1])->second) << 15); 
                               }
-                              // Else throw error pointing why spaces are bad code styling
+                              // Else throw error pointing why spaces are bad code styling. Yeah this bit is crap
                               break;
-                    case 'U': outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); //rd
+                    }
+                    case 'U': {
+                              outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); //rd
                               if ((funcArgs[2][0] == '0' && funcArgs[2][1] == 'x') || funcArgs[2][funcArgs[2].size()-1] == 'h') {
                                   outBuf |= stoi(funcArgs[2], 0, 16) << 12; //hex
                               } else {
                                   outBuf |= stoi(funcArgs[2], 0, 10) << 12; //decimal
                               }
                               break;
-                    case 'B': funct3 = funct3Map.find(funcArgs[0])->second;
+                    }
+                    case 'B': {
+                              funct3 = funct3Map.find(funcArgs[0])->second;
                               outBuf |= (stoi(funct3, 0, 2) << 12);
                               outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 15); // assigning rs1
                               outBuf |= ((registerAliasMap.find(funcArgs[2])->second) << 20); // assigning rs2
                               //define pcrel13
                               pcrel_13 = labelMap.find(funcArgs[3])->second;
                               pcrel_13 -=  instAddress;
-                              if(true) {
-                                  std::bitset<13> immVal(pcrel_13);
-                                  std::bitset<5> imm5rd(0);
-                                  imm5rd.set(0, immVal[11]);
-                                  for(int r=1; r<5; r++) imm5rd.set(r, immVal[r]);
-                                  std::bitset<7> imm7imm(0);
-                                  for(int r=5; r<11; r++) imm7imm.set(r-5, immVal[r]);
-                                  imm7imm.set(6, immVal[12]);
-                                  outBuf |= (imm5rd.to_ulong() << 7);
-                                  outBuf |= (imm7imm.to_ulong() << 25);
-                              }
+                              std::bitset<13> immVal(pcrel_13);
+                              std::bitset<5> imm5rd(0);
+                              imm5rd.set(0, immVal[11]);
+                              for(int r=1; r<5; r++) imm5rd.set(r, immVal[r]);
+                              std::bitset<7> imm7imm(0);
+                              for(int r=5; r<11; r++) imm7imm.set(r-5, immVal[r]);
+                              imm7imm.set(6, immVal[12]);
+                              outBuf |= (imm5rd.to_ulong() << 7);
+                              outBuf |= (imm7imm.to_ulong() << 25);
+                              
                               break;
-                    case 'J': outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); // assigning rd
+                    }
+                    case 'J': {
+                              outBuf |= ((registerAliasMap.find(funcArgs[1])->second) << 7); // assigning rd
                               //Define pcrel21
                               pcrel_21 = labelMap.find(funcArgs[3])->second;
                               pcrel_21 -= instAddress;
-                              if(true){
-                                  std::bitset<21> preImm(pcrel_21);
-                                  std::bitset<20> newImm(0);
-                                  for(int r=12; r<20; r++) newImm.set(r-12, preImm[r]);
-                                  newImm.set(8, preImm[11]);
-                                  for(int r=1; r<11; r++) newImm.set(r-1+9, preImm[r]);
-                                  newImm.set(19, preImm[20]);
-                                  outBuf |= (newImm.to_ulong() << 12);
-                              }
+                              std::bitset<21> preImm(pcrel_21);
+                              std::bitset<20> newImm(0);
+                              for(int r=12; r<20; r++) newImm.set(r-12, preImm[r]);
+                              newImm.set(8, preImm[11]);
+                              for(int r=1; r<11; r++) newImm.set(r-1+9, preImm[r]);
+                              newImm.set(19, preImm[20]);
+                              outBuf |= (newImm.to_ulong() << 12);
                               break;
+                    }
                     default : cout << "Unexpected Error. Check instruction type map for wrong entries (other than r, i, s, b, u & j).";
                 }
             }

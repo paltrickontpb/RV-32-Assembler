@@ -64,6 +64,7 @@ int main(int argc, char **argv){
     Parser.parseLine("          sb x3, 1725(x4)",1);
     Parser.parseLine("          ebreak",1);
     Parser.parseLine("APRAD:    beq x1, x2, APRAD",1);
+    Parser.parseLine("ast:      jal x2,ast", 1);
 
     //Manual Second Pass
     Parser.reset_LineAddress();
@@ -78,7 +79,9 @@ int main(int argc, char **argv){
     Parser.parseLine("          sb x3, 1725(x4)",2);
     Parser.parseLine("          ebreak",2);
     Parser.parseLine("          ebreak",2);
-    Parser.parseLine("          beq x1, x2, APRAD",2);
+    Parser.parseLine("APRAD:    beq x1, x2, later",2);
+    Parser.parseLine("ast:      jal x2,ast", 2);
+    Parser.parseLine("          lb x2,63(x3)", 2);
 
     // Write 32bit to file, Ignore Nulls and Pass Error to Error Handler
     return 0;
