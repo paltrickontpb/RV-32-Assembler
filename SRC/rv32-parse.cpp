@@ -20,13 +20,13 @@ void rv32Parser::setAddress(int addr){
     instAddress = addr;
 }
 
-unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
+int rv32Parser::parseLine(std::string asmLine, int passNum){
     // Flags
     bool incrementAddress = false;
     bool assemblerDirective = false;
     bool isCommand = false;
     // Logic
-    unsigned int outBuf = 0;
+    int outBuf = 0;
     std::regex initEx("([^/\r\n]*:)?([^/#\t\r\n]*)?(#[^/\r\n]*)?"); //(Group 1: Address Label)
     std::smatch groups; //(Group 2: Asm Command)(Group 3: Comment to be ignored)
     
@@ -41,7 +41,7 @@ unsigned int rv32Parser::parseLine(std::string asmLine, int passNum){
         // Check for Labels
         if(label.size()>0) {
             label = label.substr(0, label.size()-1);
-            cout << "Label Found : " << label << " at location " << instAddress << endl;
+            //cout << "Label Found : " << label << " at location " << instAddress << endl;
             labelMap.insert({label, instAddress});
         }
     

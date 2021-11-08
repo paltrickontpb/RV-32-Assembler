@@ -6,7 +6,7 @@
 class rv32Parser{
     public:
         rv32Parser();
-        unsigned int parseLine(std::string asmLine, int passNum); //return hex or binary string(tbd)
+        int parseLine(std::string asmLine, int passNum); //return hex or binary string(tbd)
         void reset_LineAddress();
         void setAddress(int addr);
 

@@ -12,10 +12,12 @@
 10. ~~Pass Each label with address into an associative map~~
 11. ~~Increment address with each command~~
 12. ~~Segment command into function and args~~
-13. Pass Address to each label instance in second pass
+13. ~~Pass Address to each label instance in second pass~~
 14. ~~Map all ASM functions to get binary format, and convert args into binary using registerAliasMap~~
 15. ~~Create 32bit long binary lines and return those from parser function~~
 16. Map Assembler directives into the process
 17. Create testbenches during make file operation
+18. Add methods to accept all whitespaces
+19. Dynamic parsing with resizable whitespace
 
 **Note**: Strikethrough lines are ones that have been completed. New steps will be added as and when required.

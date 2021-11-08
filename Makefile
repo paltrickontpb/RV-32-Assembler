@@ -18,4 +18,4 @@ clean:
 
 .PHONY: run
 run:
-	${BUILD}/rv32-asm abc.asm
+	${BUILD}/rv32-asm fibonacci.asm
